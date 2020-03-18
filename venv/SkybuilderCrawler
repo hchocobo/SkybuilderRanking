@@ -1,0 +1,70 @@
+class SkybuilderCrawler:
+    def __init__(self, c_ranklist):
+        self.ranklist = c_ranklist
+        #self.rankdate = c_rankdate
+
+    def SkybuilderCSVWrite(self, file_name):
+        # filename
+        csv_filename = 'skybuilderrank202003.csv'
+
+        with open(csv_filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+
+            for character in self.ranklist:
+                csvrow = [character.rank, character.rank_change, character.name, character.fc, character.score, character.score_change, character.dcgroup, character.world]
+                writer.writerow(csvrow)
+
+    def SkybuilderCSVRead(self, file_name):
+        # filename
+        csv_filename = 'skybuilderrank202003.csv'
+
+        with open(csv_filename, 'r', newline='') as csvfile:
+            rows = csv.reader(csvfile, delimiter=',')
+            print("Reading file Dictionary")
+            # 6 , 7     , 0   , 1          , 2   , 3 , 4    , 5
+            # dc, server, rank, rank_change, name, fc, score, score_change
+            r_ranklist = []
+            for row in rows:
+                #r_ranklist.append(SkybuilderRankPlayer(row[6],row[7],row[0],row[1],row[2],row[3],row[4],row[5]))
+                print(row[0]," ", row[1], " ", row[2], " ", row[3], " ", row[4], " ", row[5], " ", row[6], " ", row[7])
+
+    def url_build(datacenter, world, job):
+        # ('Elemental', 'Mana', 'Gaia') 3
+        # ('Aegis','Atomos','Carbuncle','Garuda','Gungnir','Kujata','Ramuh','Tonberry','Typhon','Unicorn') 10
+        # ('Alexander','Bahamut','Durandal','Fenrir','Ifrit','Ridill','Tiamat,Ultima','Valefor','Yojimbo','Zeromus') 10
+        # ('Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu','Titan') 11
+
+        # ('Aether', 'Primal', 'Crystal') 3
+        # ('Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren') 8
+        # ('Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros') 8
+        # ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera') 8
+
+        # ('Chaos', 'Light') 3
+        # ('Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan') 6
+        # ('Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark') 6
+
+        # class, worldname, dcgroup
+        default_url = 'na.finalfantasyxiv.com/lodestone/ishgardian_restoration/ranking/'
+        ff_job = ('carpenter','blacksmith','armorer','goldsmith','leatherworker','weaver','alchemist','culinarian','miner','botanist','fisher')
+        ff_dcgroup = ('Elemental','Gaia','Mana')
+        ff_elemental_world = ('Aegis','Atomos','Carbuncle','Garuda','Gungnir','Kujata','Ramuh','Tonberry','Typhon','Unicorn')
+        ff_gaia_world = ('Alexander','Bahamut','Durandal','Fenrir','Ifrit','Ridill','Tiamat,Ultima','Valefor','Yojimbo','Zeromus')
+        ff_mana_world = ('Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu','Titan')
+
+        jp_datacenter = (('Aegis','Atomos','Carbuncle','Garuda','Gungnir','Kujata','Ramuh','Tonberry','Typhon','Unicorn'), ('Alexander','Bahamut','Durandal','Fenrir','Ifrit','Ridill','Tiamat,Ultima','Valefor','Yojimbo','Zeromus'), ('Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu','Titan'))
+
+        r_job = ff_job[job] + '?'
+        dcgroup = 'dcgroup='+ ff_dcgroup[datacenter] + '#ranking'
+
+        if datacenter == 0:
+            worldname = 'worldname=' + ff_elemental_world[world] + '&'
+        elif datacenter == 1:
+            worldname = 'worldname=' + ff_gaia_world[world] + '&'
+        elif datacenter == 2:
+            worldname = 'worldname=' + ff_mana_world[world] + '&'
+        else:
+            worldname = ''
+
+        default_url = "https://" + default_url + r_job + worldname + dcgroup
+
+        return default_url
