@@ -3,8 +3,27 @@ import requests
 import csv
 import datetime
 
+ff_job = (
+'carpenter', 'blacksmith', 'armorer', 'goldsmith', 'leatherworker', 'weaver', 'alchemist', 'culinarian', 'miner',
+'botanist', 'fisher')
+
+jp_datacenter = ('Elemental', 'Gaia', 'Mana')
+na_datacenter = ('Aether', 'Primal', 'Crystal')
+eu_datacenter = ('Chaos', 'Light')
+
+jp_worlds = (('Aegis', 'Atomos', 'Carbuncle', 'Garuda', 'Gungnir', 'Kujata', 'Ramuh', 'Tonberry', 'Typhon', 'Unicorn'),
+             ('Alexander', 'Bahamut', 'Durandal', 'Fenrir', 'Ifrit', 'Ridill', 'Tiamat', 'Ultima', 'Valefor', 'Yojimbo',
+              'Zeromus'), (
+             'Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium',
+             'Shinryu', 'Titan'))
+na_worlds = (('Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'),
+             ('Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros'),
+             ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera'))
+eu_worlds = (('Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan'),
+             ('Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark'))
+
 class SkybuilderRankPlayer:
-    def __init__(self,dc,server,rank,rank_change,name,fc,score,score_change):
+    def __init__(self, dc, server, rank, rank_change, name, fc, score, score_change, i_job):
         self.dcgroup = dc
         self.world = server
         self.rank = rank
@@ -13,6 +32,7 @@ class SkybuilderRankPlayer:
         self.fc = fc
         self.score = score
         self.score_change = score_change
+        self.job = i_job
 
     def data(self):
         #m_line = '"' + self.rank + '","' + self.rank_change + '","' +  self.name +self.fc + '","' +  self.score + '","' +  self.score_change + '","' +  self.dcgroup + '","' +   self.worldname + '"'
@@ -23,22 +43,42 @@ class SkybuilderRankPlayer:
 
 class SkybuilderCrawler:
     def __init__(self, c_ranklist):
+        # Ranklist [world][JOB][CHARACTER]
+        self.ranklist = []
         self.ranklist = c_ranklist
+        self.maxWorld = len(self.ranklist)
+        self.maxJob = 11
+        self.maxRank = 100
         #self.rankdate = c_rankdate
 
     def SkybuilderCSVWrite(self):
         # filename
-        csv_filename = 'skybuilderrank202003.csv'
+        current_time = datetime.datetime.now()
+        time_stamp = current_time.strftime('%Y%m%d_h%Hm%M')
+
+        csv_filename = 'sr_elemental' + time_stamp + '.csv'
         with open(csv_filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             #writer.writerow(["Rank","Rank Change", "Name", "FC", "Score", "Score Change", "Data Center", "World"])
+            w_world = 0
+            w_job = 0
+            while w_world < self.maxWorld:
+                # Loop the world rank info
 
-            for character in self.ranklist:
-                #new_data = str(character.data())
-                #print("N: " + new_data)
-                #writer.writerow(new_data.)
-                csvrow = [character.rank, character.rank_change, character.name, character.fc, character.score, character.score_change, character.dcgroup, character.world]
-                writer.writerow(csvrow)
+                while w_job < self.maxJob:
+                    # print(datacenter_ranklist[0][0][0].name) print first world(AGEIS) first job(CRP) RANK 1
+
+                    for character in self.ranklist[w_world][w_job]:
+                        csvrow = [character.rank, character.rank_change, character.name, character.fc, character.score,
+                                  character.score_change, character.dcgroup, character.world, character.job]
+                        writer.writerow(csvrow)
+                    # rest to first job
+                    w_job = w_job + 1
+                # loop to next world
+                w_job = 0
+                w_world = w_world + 1
+
+
 
     def SkybuilderCSVRead(self):
         # filename
@@ -58,17 +98,6 @@ class ffxiv_world:
         self.dc = dc
         self.world = world
         self.region = region
-ff_job = ('carpenter','blacksmith','armorer','goldsmith','leatherworker','weaver','alchemist','culinarian','miner','botanist','fisher')
-
-jp_datacenter = ('Elemental', 'Gaia', 'Mana')
-na_datacenter = ('Aether', 'Primal', 'Crystal')
-eu_datacenter = ('Chaos', 'Light')
-
-jp_worlds = (('Aegis','Atomos','Carbuncle','Garuda','Gungnir','Kujata','Ramuh','Tonberry','Typhon','Unicorn'), ('Alexander', 'Bahamut', 'Durandal', 'Fenrir', 'Ifrit', 'Ridill', 'Tiamat', 'Ultima', 'Valefor', 'Yojimbo', 'Zeromus'), ('Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu','Titan'))
-na_worlds = (('Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'),('Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros'),('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera'))
-eu_worlds = (('Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan'),('Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark'))
-
-
 
 def url_build(region, datacenter, world, job):
 # Default skybuilder ranking string
@@ -128,9 +157,8 @@ def url_build(region, datacenter, world, job):
 
     return default_url
 
-def build_ranklist(current_ranklist, r_dc, r_world):
-    print("DC: ", r_dc)
-    print("World: ", r_world)
+
+def build_ranklist(current_ranklist, r_dc, r_world, skr_job):
     rank_list = []
     for rank_character in current_ranklist:
         # get rank
@@ -158,24 +186,23 @@ def build_ranklist(current_ranklist, r_dc, r_world):
             r_scorechange = rank_character.find('div', {'class': 'ranking-score'}).find('span').string
         else:
             r_scorechange = '0'
-        # send data into skybuilder obj
-        rank_list.append(SkybuilderRankPlayer(_dc,_world,r_rank,r_rankChange,r_name,r_fc,r_score,r_scorechange))
-
-        t_ranklist = tuple(rank_list)
-       # print(r_rank,' (', r_rankChange,') ', r_name,' |', r_fc, '| ', r_score, ' (', r_scorechange, ')')
-
-    return
+        # send data into skybuilder obj _(self, dc, server, rank, rank_change, name, fc, score, score_change, i_job):
+        rank_list.append(
+            SkybuilderRankPlayer(r_dc, r_world, r_rank, r_rankChange, r_name, r_fc, r_score, r_scorechange, skr_job))
+    return rank_list
 
 # URL LOOP for datacenter
 r_region = 'jp'
 r_dc = 0
 r_world = 0
 r_job = 0
+datacenter_ranklist = []
 
 while (r_world < 10):
-    print("R_WORLD: ", r_world )
+    print("R_WORLD: ", r_world)
+    world_ranklist = []
 
-    while (r_job < 12):
+    while (r_job < 11):
        url = url_build(r_region, r_dc, r_world, r_job)
 
        # Grab ranking page
@@ -188,22 +215,17 @@ while (r_world < 10):
        # build rank list
        c_ranklist = all_top12.find_all('li', {'class': 'ranking-list__item'})
        c_ranklist += all_top100.find_all('li', {'class': 'ranking-list__item'})
-       c_ranklist = build_ranklist(c_ranklist, jp_datacenter[r_dc], jp_worlds[r_dc][r_world])
-       print(c_ranklist)
+       c_ranklist = build_ranklist(c_ranklist, jp_datacenter[r_dc], jp_worlds[r_dc][r_world], ff_job[r_job])
+       world_ranklist.append(c_ranklist)
        r_job = r_job + 1
-
     r_job = 0
-    #r_world = r_world + 1
 
+    datacenter_ranklist.append(world_ranklist)
+    # [WORLD][JOB][character]
+    # print(datacenter_ranklist[0][0][0].name) print first world(AGEIS) first job(CRP) RANK 1
 
-""""
-    
-print("TESTING")
+    r_world = r_world + 1
 
-for r in c_ranklist:
-    r.data()
-
-character = SkybuilderCrawler(c_ranklist)
-character.SkybuilderCSVWrite()
-character.SkybuilderCSVRead()
-"""""
+Skybuilder_RankList = SkybuilderCrawler(datacenter_ranklist)
+Skybuilder_RankList.SkybuilderCSVWrite()
+print("Task complete")
